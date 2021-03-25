@@ -38,8 +38,8 @@
     </div>
   </div>
 
-  <!-- bootstrap中的弹出模态框 -->
-  <div class="modal fade" tabindex="-1" id="myModal" role="dialog">
+
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -51,16 +51,49 @@
           <p>One fine body&hellip;</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">确定</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
         </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
+      </div>
+    </div>
+  </div>
 
+  <script>
 
-  <!-- 引入http.js文件 -->
-  <script src="./libs/http.js"></script>
-  <script src="./js/login.js"></script>
+    $('.input_sub').on('click', (e) => {
+      e.preventDefault()
+      const username = $('.input_txt').val().trim();
+      const password = $('.input_pass').val().trim();
+      if (username === "" || password === "") {
+        $("#myModal .modal-body p").text("账号或密码不能为空!");
+        $('#myModal').modal()
+        return
+      }
+      $.post({
+        url: 'http://localhost:8080/api/v1/admin/user/login',
+        data: {
+          username,
+          password
+        },
+        success(res) {
+          if (res.code === 200) {
+            $("#myModal .modal-body p").text(res.msg);
+            $('#myModal').modal()
+            $('#myModal').on('hidden.bs.modal', (e) => {
+              location.href = './index.html';
+              localStorage.setItem('token',res.token)
+            })
+          } else {
+            $("#myModal .modal-body p").text(res.msg);
+            $('#myModal').modal();
+            $('.input_txt').val("")
+            $('.input_pass').val("")
+            return
+          }
+        },
+
+      })
+    })
+  </script>
 </body>
 
 </html>
